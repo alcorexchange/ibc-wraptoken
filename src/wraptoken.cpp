@@ -93,8 +93,7 @@ void wraptoken::_issue(const name& prover, const bridge::actionproof actionproof
 
     // transfer to beneficiary
     wraptoken::transfer_action act(_self, permission_level{_self, "active"_n});
-    act.send(_self, lock_act.beneficiary, lock_act.quantity.quantity, std::string("") );
-    
+    act.send(_self, lock_act.beneficiary, lock_act.quantity.quantity, lock_act.memo );
 }
 
 // mints the wrapped token, requires heavy block proof and action proof
@@ -155,7 +154,6 @@ void wraptoken::_cancel(const name& prover, const bridge::actionproof actionproo
 
     auto sym = lock_act.quantity.quantity.symbol;
     check( sym.is_valid(), "invalid symbol name" );
-    //check( memo.size() <= 256, "memo has more than 256 bytes" );
 
     check(actionproof.action.name == "emitxfer"_n, "must provide proof of token locking before issuing");
 
@@ -165,7 +163,8 @@ void wraptoken::_cancel(const name& prover, const bridge::actionproof actionproo
     wraptoken::xfer x = {
       .owner = _self, // todo - check whether this should show as lock_act.beneficiary
       .quantity = extended_asset(lock_act.quantity.quantity, global.paired_token_contract),
-      .beneficiary = lock_act.owner
+      .beneficiary = lock_act.owner,
+      .memo = lock_act.memo
     };
 
     // return to lock_act.owner so can be withdrawn from wraplock
@@ -257,8 +256,9 @@ void wraptoken::enable(){
 
 }
 
-void wraptoken::retire(const name& owner,  const asset& quantity, const name& beneficiary)
+void wraptoken::retire(const name& owner,  const asset& quantity, const name& beneficiary, const string& memo)
 {
+    check( memo.size() <= 256, "memo has more than 256 bytes" );
     check(global_config.exists(), "contract must be initialized first");
 
     require_auth( owner );
@@ -289,7 +289,8 @@ void wraptoken::retire(const name& owner,  const asset& quantity, const name& be
     wraptoken::xfer x = {
       .owner = owner,
       .quantity = extended_asset(quantity, global.paired_token_contract),
-      .beneficiary = beneficiary
+      .beneficiary = beneficiary,
+      .memo = memo
     };
 
     wraptoken::emitxfer_action act(_self, permission_level{_self, "active"_n});

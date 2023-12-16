@@ -106,6 +106,7 @@ namespace eosio {
            name             owner;
            extended_asset   quantity;
            name             beneficiary;
+           string           memo;
          };
 
 
@@ -171,7 +172,7 @@ namespace eosio {
           * @param memo - the beneficiary account on the native token chain
           */
          [[eosio::action]]
-         void retire(const name& owner,  const asset& quantity, const name& beneficiary);
+         void retire(const name& owner,  const asset& quantity, const name& beneficiary, const string& memo);
 
 
          [[eosio::action]]
