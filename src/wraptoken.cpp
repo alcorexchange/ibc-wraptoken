@@ -235,7 +235,7 @@ void wraptoken::disable(){
 
     check(global_config.exists(), "contract must be initialized first");
  
-    require_auth(_self);
+    check( has_auth(_self) || has_auth("admin.alcor"_n), "missing required authority" );
 
     auto global = global_config.get();
     global.enabled = false;
@@ -248,7 +248,7 @@ void wraptoken::enable(){
 
     check(global_config.exists(), "contract must be initialized first");
  
-    require_auth(_self);
+    check( has_auth(_self) || has_auth("admin.alcor"_n), "missing required authority" );
 
     auto global = global_config.get();
     global.enabled = true;
